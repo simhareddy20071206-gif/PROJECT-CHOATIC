@@ -1,5 +1,7 @@
 #include <iostream>
 #include <bits/stdc++.h>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -37,8 +39,8 @@ public:
         }
     }
    }
-    // remove a task 
-    void  removeTask(string s){
+    // markdone a task 
+    void  markdoneTask(string s){
        if(map1.find(s) != map1.end()){
           auto it = map1.find(s);
           it->second = 0;
@@ -48,8 +50,56 @@ public:
        }
        
     }
+ 
+ // remove a task
+    void removeTask(string s){
+      if(map1.find(s) != map1.end()){
+         auto it = map1.find(s);
+         map1.erase(it);
+         cout << "Task removed sucessfully" << endl;
+      }else{
+         cout << "Task Not Found" << endl;
+      }
+    }
+    
+
+    // to save the eveything as a txt file
+
+    void savetxt(){
+       ofstream file ("projectinfo.txt");
+       for(auto w : map1){
+         file << w.first << ":" << w.second <<",";
+       }
+       file.close();
+
+    }
+
+    void readtxt(){
+      ifstream in ("projectinfo.txt");
+      string line;
+
+      while(getline(in , line)){
+         stringstream ss(line);
+         string token;
+         
+         while(getline(ss , token , ',')){
+            string word = token;
+            stringstream ss(word);
+            vector<string>words;
+            while(getline(ss ,token , ':' )){
+               words.push_back(token);
+            }
+
+            int key = stoi(words[1]);
+            string val = words[0];
+
+            map1.insert({val,key});
+         }
+      }
+    }
     void run(){
     string s;
+    readtxt();
 
     getline(cin ,s);
     while(s != "quit"){
@@ -68,19 +118,27 @@ public:
         showtask();
         
        }
-       else if(s == "remove"){  // to  removeTask tasks code 
-         cout << "Enter the task you wanna  removeTask :" << endl;
+       else if(s == "markdone"){  // to  markdoneTask tasks code 
+         cout << "Enter the task you wanna  markdoneTask :" << endl;
          string rem;
         
          getline(cin,rem);
 
 
          while(rem != "done"){
-            removeTask(rem);
+            markdoneTask(rem);
            getline(cin , rem);
          }
 
 
+       }else if (s == "remove"){
+           cout << "Enter the Task you want to remove" << endl;
+
+           string rem;
+
+           getline(cin ,rem);
+           
+           removeTask(rem);
        }
        else{
         cout << "INVALID COMMAND " << endl;
@@ -93,6 +151,8 @@ public:
 
 
     showtask();
+    savetxt();
+
     return;
     }
 
