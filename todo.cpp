@@ -5,238 +5,253 @@
 
 using namespace std;
 
+// ─── COLOR CODES ────────────────────────────────────────────
+#define RESET   "\033[0m"
+#define BOLD    "\033[1m"
+#define RED     "\033[1;31m"
+#define GREEN   "\033[1;32m"
+#define YELLOW  "\033[1;33m"
+#define CYAN    "\033[1;36m"
+#define MAGENTA "\033[1;35m"
+#define WHITE   "\033[1;37m"
 
-class todo{
+// ─── UI HELPERS ─────────────────────────────────────────────
+void printLine( string c = "-", int len = 50) {
+    cout << CYAN;
+    for (int i = 0; i < len; i++) cout << c;
+    cout << RESET << endl;
+}
+
+void printBanner() {
+    cout << endl ;
+    cout << endl;
+    cout << endl;
+    printLine("=" , 50);
+    cout << MAGENTA << BOLD;
+    cout << "  ██████╗██╗  ██╗ █████╗  ██████╗ ████████╗██╗ ██████╗" << endl;
+    cout << " ██╔════╝██║  ██║██╔══██╗██╔═══██╗╚══██╔══╝██║██╔════╝" << endl;
+    cout << " ██║     ███████║███████║██║   ██║   ██║   ██║██║     " << endl;
+    cout << " ██║     ██╔══██║██╔══██║██║   ██║   ██║   ██║██║     " << endl;
+    cout << " ╚██████╗██║  ██║██║  ██║╚██████╔╝   ██║   ██║╚██████╗" << endl;
+    cout << "  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝ ╚═════╝" << endl;
+    cout << RESET;
+    cout << CYAN << "              ⚡  PROJECT CHAOTIC v1.0  ⚡" << RESET << endl;
+    printLine("═", 57);
+}
+
+void printMenu() {
+    printLine("-", 50);
+    cout << CYAN << BOLD << "  📋  COMMANDS" << RESET << endl;
+    printLine("-", 50);
+    cout << GREEN  << "  ➕  add          " << RESET << "→ Add new tasks" << endl;
+    cout << YELLOW << "  📋  show         " << RESET << "→ Show all tasks" << endl;
+    cout << GREEN  << "  ✅  markdone     " << RESET << "→ Mark task as done" << endl;
+    cout << YELLOW << "  ⌛  markpending  " << RESET << "→ Mark task as pending" << endl;
+    cout << RED    << "  🗑️   remove       " << RESET << "→ Remove a task" << endl;
+    cout << GREEN  << "  👍  showdone     " << RESET << "→ Show completed tasks" << endl;
+    cout << YELLOW << "  ⌛  showpending  " << RESET << "→ Show pending tasks" << endl;
+    cout << RED    << "  🛑  showunstarted" << RESET << "→ Show unstarted tasks" << endl;
+    cout << MAGENTA<< "  🚪  quit         " << RESET << "→ Save & exit" << endl;
+    printLine("-", 50);
+    cout << CYAN << "  > " << RESET;
+}
+
+void printSectionHeader(string title, string color) {
+    cout << endl;
+    printLine("-", 50);
+    cout << color << BOLD << "  " << title << RESET << endl;
+    printLine("-", 50);
+}
+
+// ─── TODO CLASS ─────────────────────────────────────────────
+class todo {
 public:
-   unordered_multimap<string,int>map1;
+    unordered_multimap<string, int> map1;
 
+    todo() {
+        printBanner();
+        cout << WHITE << BOLD << "  Welcome back, Narasimha. Let's get things done." << RESET << endl;
+        printLine("==", 57);
+    }
 
-   todo(){
-    cout << "hello! welcome to the app" << endl;
-   }
-    
-   //add a task
-   void addtask(string s){
-     if(map1.find(s) == map1.end()){
-        map1.emplace(s,1);
-     }else{
-        cout << "Already have the task" << endl;
-     }
-     
-    
-   }
-   
-   void showdone(){
-      cout << "\033[1;32m" << "🚀" << " Congrats YOU HAVE DONE SOME" << "\033[0m"<< endl;
-       
-
-      for(auto w : map1){
-         if(w.second == 0){
-            cout << "\033[1;32m" <<"👍  "<< w.first << "\033[0m" << endl;
-            cout << endl;
+    void addtask(string s) {
+        if (map1.find(s) == map1.end()) {
+            map1.emplace(s, 1);
+            cout << GREEN << "  ✅ Added: " << s << RESET << endl;
+        } else {
+            cout << YELLOW << "  ⚠️  Already exists: " << s << RESET << endl;
         }
-      }
+    }
 
-   }
-   
-   void showpending(){
-      cout << "\033[1;33m" << "⌛" << " A LOT OT DO" << "\033[0m"<< endl;
-       
-
-      for(auto w : map1){
-        if(w.second == 2){
-         cout << "\033[1;33m" << "⌛  "<< w.first << "\033[0m" << endl;
-         cout << endl;
-        } 
-      }
-
-   }
-
-   void showunstarted(){
-      cout << "\033[1;31m" << "🤞" << "WE HAVE WORK BRO!" << "\033[0m"<< endl;
-     for(auto w : map1){  
-      if(w.second == 1){
-            cout << "\033[1;31m" <<"🛑  " << w.first << "\033[0m" << endl;
-            cout << endl;
+    void showdone() {
+        printSectionHeader("🚀 COMPLETED TASKS", GREEN);
+        bool found = false;
+        for (auto w : map1) {
+            if (w.second == 0) {
+                cout << GREEN << "  👍  " << w.first << RESET << endl;
+                found = true;
+            }
         }
-      }
-   }
-
-
-   void showtask(){
-    cout << "TASK LIST : " << endl;
-
-
-    for (auto w : map1){
-        // printing tasks
-        if(w.second == 1){
-            cout << "\033[1;31m" <<"🛑  " << w.first << "\033[0m" << endl;
-            cout << endl;
-        }else if(w.second == 0){
-            cout << "\033[1;32m" <<"👍  "<< w.first << "\033[0m" << endl;
-            cout << endl;
-        }else{
-         cout << "\033[1;33m" << "⌛  "<< w.first << "\033[0m" << endl;
-         cout << endl;
-        } 
-    }
-   }
-    // markdone a task 
-    void  markdoneTask(string s){
-       if(map1.find(s) != map1.end()){
-          auto it = map1.find(s);
-          it->second = 0;
-          cout << "Congrats On completion" << endl;
-       }else{
-        cout << "Task not found yet " << endl;
-       }
-       
-    }
- 
- // remove a task
-    void removeTask(string s){
-      if(map1.find(s) != map1.end()){
-         auto it = map1.find(s);
-         map1.erase(it);
-         cout << "Task removed sucessfully" << endl;
-      }else{
-         cout << "Task Not Found" << endl;
-      }
-    }
-    
-
-    // to save the eveything as a txt file
-
-    void savetxt(){
-       ofstream file ("projectinfo.txt");
-       for(auto w : map1){
-         file << w.first << ":" << w.second <<",";
-       }
-       file.close();
-
+        if (!found) cout << YELLOW << "  No completed tasks yet. Get moving!" << RESET << endl;
+        printLine("-", 50);
     }
 
-    void readtxt(){
-      ifstream in ("projectinfo.txt");
-      string line;
+    void showpending() {
+        printSectionHeader("⌛ PENDING TASKS", YELLOW);
+        bool found = false;
+        for (auto w : map1) {
+            if (w.second == 2) {
+                cout << YELLOW << "  ⌛  " << w.first << RESET << endl;
+                found = true;
+            }
+        }
+        if (!found) cout << GREEN << "  No pending tasks!" << RESET << endl;
+        printLine("-", 50);
+    }
 
-      while(getline(in , line)){
-         stringstream ss(line);
-         string token;
-         
-         while(getline(ss , token , ',')){
-            string word = token;
-            stringstream ss(word);
-            vector<string>words;
-            while(getline(ss ,token , ':' )){
-               words.push_back(token);
+    void showunstarted() {
+        printSectionHeader("🛑 UNSTARTED TASKS", RED);
+        bool found = false;
+        for (auto w : map1) {
+            if (w.second == 1) {
+                cout << RED << "  🛑  " << w.first << RESET << endl;
+                found = true;
+            }
+        }
+        if (!found) cout << GREEN << "  No unstarted tasks. Beast mode!" << RESET << endl;
+        printLine("-", 50);
+    }
+
+    void showtask() {
+        printSectionHeader("📋 ALL TASKS", CYAN);
+        if (map1.empty()) {
+            cout << YELLOW << "  No tasks yet. Type 'add' to start." << RESET << endl;
+        }
+        for (auto w : map1) {
+            if (w.second == 1)
+                cout << RED    << "  🛑  " << w.first << RESET << endl;
+            else if (w.second == 0)
+                cout << GREEN  << "  👍  " << w.first << RESET << endl;
+            else
+                cout << YELLOW << "  ⌛  " << w.first << RESET << endl;
+        }
+        printLine("-", 50);
+    }
+
+    void markdoneTask(string s) {
+        if (map1.find(s) != map1.end()) {
+            auto it = map1.find(s);
+            it->second = 0;
+            cout << GREEN << "  🎉 Marked done: " << s << RESET << endl;
+        } else {
+            cout << RED << "  ❌ Task not found: " << s << RESET << endl;
+        }
+    }
+
+    void removeTask(string s) {
+        if (map1.find(s) != map1.end()) {
+            map1.erase(map1.find(s));
+            cout << RED << "  🗑️  Removed: " << s << RESET << endl;
+        } else {
+            cout << RED << "  ❌ Task not found: " << s << RESET << endl;
+        }
+    }
+
+    void savetxt() {
+        ofstream file("projectinfo.txt");
+        for (auto w : map1)
+            file << w.first << ":" << w.second << ",";
+        file.close();
+        cout << GREEN << "  💾 Progress saved." << RESET << endl;
+    }
+
+    void readtxt() {
+        ifstream in("projectinfo.txt");
+        string line;
+        while (getline(in, line)) {
+            stringstream ss(line);
+            string token;
+            while (getline(ss, token, ',')) {
+                stringstream ss2(token);
+                vector<string> words;
+                string part;
+                while (getline(ss2, part, ':'))
+                    words.push_back(part);
+                if (words.size() == 2)
+                    map1.insert({words[0], stoi(words[1])});
+            }
+        }
+    }
+
+    void markpendingTask(string s) {
+        if (map1.find(s) == map1.end()) {
+            cout << RED << "  ❌ Task not found: " << s << RESET << endl;
+        } else {
+            auto it = map1.find(s);
+            it->second = 2;
+            cout << YELLOW << "  ⌛ Marked pending: " << s << RESET << endl;
+        }
+    }
+
+    void run() {
+        string s;
+        readtxt();
+        printMenu();
+
+        getline(cin, s);
+        while (s != "quit") {
+            if (s == "add") {
+                cout << CYAN << "  Enter tasks (type 'done' to finish):" << RESET << endl;
+                string add;
+                getline(cin, add);
+                while (add != "done") {
+                    addtask(add);
+                    getline(cin, add);
+                }
+            } else if (s == "show") {
+                showtask();
+            } else if (s == "markdone") {
+                cout << CYAN << "  Enter tasks to mark done (type 'done' to finish):" << RESET << endl;
+                string rem;
+                getline(cin, rem);
+                while (rem != "done") {
+                    markdoneTask(rem);
+                    getline(cin, rem);
+                }
+            } else if (s == "remove") {
+                cout << CYAN << "  Enter task to remove:" << RESET << endl;
+                string rem;
+                getline(cin, rem);
+                removeTask(rem);
+            } else if (s == "markpending") {
+                cout << CYAN << "  Enter task to mark pending:" << RESET << endl;
+                string rem;
+                getline(cin, rem);
+                markpendingTask(rem);
+            } else if (s == "showdone") {
+                showdone();
+            } else if (s == "showpending") {
+                showpending();
+            } else if (s == "showunstarted") {
+                showunstarted();
+            } else {
+                cout << RED << "  ❌ Invalid command." << RESET << endl;
             }
 
-            int key = stoi(words[1]);
-            string val = words[0];
-
-            map1.insert({val,key});
-         }
-      }
-    }
-    // to markpending code .
-
-    void markpendingTask(string s){
-      if(map1.find(s) == map1.end()){
-         cout << "No such Task. type 'add' 'task you want to do '" << endl;
-      }else{
-         auto it = map1.find(s);
-         it->second = 2;
-         cout << "marked pending sucessfully" << endl;
-      }
-    }
-
-    // the whole process of the code
-    void run(){
-    string s;
-    readtxt();
-    
-    getline(cin ,s);
-    while(s != "quit"){
-
-       if(s == "add"){   //. to add tasks code
-        cout << "Enter the task you want to add" << endl;
-        string add;
-      
-        getline(cin , add);
-        while(add != "done"){
-           addtask(add);
-           getline(cin , add);
+            cout << CYAN << "  > " << RESET;
+            getline(cin, s);
         }
-       }
-       else if(s == "show"){    /// to show tasks
+
         showtask();
-        
-       }
-       else if(s == "markdone"){  // to  markdoneTask tasks code 
-         cout << "Enter the task you wanna  markdoneTask :" << endl;
-         string rem;
-        
-         getline(cin,rem);
-
-
-         while(rem != "done"){
-            markdoneTask(rem);
-           getline(cin , rem);
-         }
-
-
-       }else if (s == "remove"){ //to remove tasks code.
-           cout << "Enter the Task you want to remove" << endl;
-
-           string rem;
-
-           getline(cin ,rem);
-           
-           removeTask(rem);
-       }else if(s == "markpending"){ //to remove markpending code .
-
-         cout << "Enter the task you want to mark pending" << endl;
-
-         string rem;
-         getline(cin , rem);
-
-         markpendingTask(rem);
-      }else if(s == "showdone"){ // show completed tasks
-         showdone();
-      }else if(s == "showpending"){ // show pending tasks
-
-         showpending();
-      }else if(s == "showunstarted"){
-                                          // show unstarted tasks
-         showunstarted();
-      }
-         else{
-        cout << "INVALID COMMAND " << endl;
-        cout << "Type 'quit' to exit " << endl;
-       }
-       
-      getline(cin , s);
-      
+        savetxt();
+        printLine("==", 57);
+        cout << MAGENTA << BOLD << "  ⚡ Chaotic OS signing off. See you tomorrow." << RESET << endl;
+        printLine("==", 57);
     }
-
-
-    showtask();
-    savetxt();
-
-    return;
-    }
-
-   
-
 };
 
- 
-
-int main(){
-  
+int main() {
     todo t1;
     t1.run();
-       
     return 0;
 }
