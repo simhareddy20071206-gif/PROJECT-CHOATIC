@@ -1,7 +1,6 @@
 #include <iostream>
 #include <bits/stdc++.h>
-#include <fstream>
-#include <sstream>
+
 
 using namespace std;
 
@@ -14,6 +13,7 @@ using namespace std;
 #define CYAN    "\033[1;36m"
 #define MAGENTA "\033[1;35m"
 #define WHITE   "\033[1;37m"
+#define COLOR  "\033[1;40m"
 
 // ─── UI HELPERS ─────────────────────────────────────────────
 void printLine( string c = "-", int len = 50) {
@@ -27,7 +27,7 @@ void printBanner() {
     cout << endl;
     cout << endl;
     printLine("=" , 50);
-    cout << MAGENTA << BOLD;
+    cout << RED << BOLD;
     cout << "  ██████╗██╗  ██╗ █████╗  ██████╗ ████████╗██╗ ██████╗" << endl;
     cout << " ██╔════╝██║  ██║██╔══██╗██╔═══██╗╚══██╔══╝██║██╔════╝" << endl;
     cout << " ██║     ███████║███████║██║   ██║   ██║   ██║██║     " << endl;
@@ -52,6 +52,8 @@ void printMenu() {
     cout << YELLOW << "  ⌛  showpending  " << RESET << "→ Show pending tasks" << endl;
     cout << RED    << "  🛑  showunstarted" << RESET << "→ Show unstarted tasks" << endl;
     cout << MAGENTA<< "  🚪  quit         " << RESET << "→ Save & exit" << endl;
+    cout << COLOR  << "  🤝 showinorder  " << RESET << "→ All tasks will show in order" << endl;  
+    cout << "🤖" << " Ask AI" << "→ chat with ai" << endl;
     printLine("-", 50);
     cout << CYAN << "  > " << RESET;
 }
@@ -107,6 +109,31 @@ public:
         }
         if (!found) cout << GREEN << "  No pending tasks!" << RESET << endl;
         printLine("-", 50);
+    }
+    void showinorder(){
+        printSectionHeader("ALL TASKS BY ORDER" ,COLOR);
+        for (auto w : map1) {
+            if (w.second == 0) {
+                cout << GREEN << "  👍  " << w.first << RESET << endl;
+                
+            }
+        }
+        printLine("-", 50);
+
+         for (auto w : map1) {
+            if (w.second == 2) {
+                cout << YELLOW << "  ⌛  " << w.first << RESET << endl;
+            }
+        }
+         printLine("-", 50);
+        for (auto w : map1) {
+            if (w.second == 1) {
+                cout << RED << "  🛑  " << w.first << RESET << endl;
+            }
+        }
+        cout << endl;
+        cout << endl;
+
     }
 
     void showunstarted() {
@@ -193,6 +220,31 @@ public:
         }
     }
 
+    void askAi() {
+    string context = "Tasks (0=done, 1=unstarted, 2=pending):\n";
+    int n = 1;
+    for (auto w : map1) {
+        context += to_string(n++) + ". " + w.first + " [status: " + to_string(w.second) + "]\n";
+    }
+
+    string que;
+    cout << CYAN << "  Ask AI: " << RESET;
+    getline(cin, que);
+
+    string fullPrompt = context + "\nUser question: " + que;
+    string safePrompt = fullPrompt;
+    replace(safePrompt.begin(), safePrompt.end(), '\n', ' ');
+
+    string cmd = "curl -s http://localhost:11434/api/generate "
+                 "-d '{\"model\":\"minimax-m2.5:cloud\","
+                 "\"prompt\":\"" + safePrompt + "\","
+                 "\"stream\":false}' 2>/dev/null | python3 -c \""
+                 "import sys,json; d=json.load(sys.stdin); print(d['response'])\"";
+
+    cout << MAGENTA << "  🤖 Thinking..." << RESET << endl;
+    system(cmd.c_str());
+   }
+
     void run() {
         string s;
         readtxt();
@@ -234,7 +286,12 @@ public:
                 showpending();
             } else if (s == "showunstarted") {
                 showunstarted();
-            } else {
+            } else if(s == "showinorder"){
+                showinorder();
+            }else if(s == "Ask AI"){
+                askAi();
+            }
+            else {
                 cout << RED << "  ❌ Invalid command." << RESET << endl;
             }
 
