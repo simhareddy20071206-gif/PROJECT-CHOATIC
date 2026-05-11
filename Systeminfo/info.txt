@@ -1,0 +1,5 @@
+RAM Total: 15.08 GB
+RAM Free: 1.83 GB
+RAM Available: 9.62 GB
+CPU Model:  Intel(R) Core(TM) Ultra 5 225U
+Your Laptop is on from 110.00 minutes 
